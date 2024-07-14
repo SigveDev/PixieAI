@@ -4,6 +4,9 @@ import SpotifyWebApi from "spotify-web-api-node";
 import Player from "../components/Player";
 import HomeComponent from "../components/HomeComponent";
 import SelectedTracksList from "../components/SelectedTracksList";
+import { ToastContainer } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
 
 const spotifyApi = new SpotifyWebApi({
   clientId: "8b945ef10ea24755b83ac50cede405a0",
@@ -13,6 +16,9 @@ const Home = ({ code }: { code: string }) => {
   const accessToken = useAuth(code);
   const [playing, setPlaying] = useState(false);
   const [accesstokenIsSet, setAccessTokenIsSet] = useState(false);
+  const [recomendedTracks, setRecomendedTracks] = useState<
+    SpotifyApi.TrackObjectFull[]
+  >([]);
   const [selectedTrackIds, setSelectedTrackIds] = useState<
     SpotifyApi.TrackObjectFull[]
   >([]);
@@ -20,10 +26,25 @@ const Home = ({ code }: { code: string }) => {
 
   const stopPlaying = () => {
     setPlaying(false);
+
+    if (recommend) {
+      setRecomendedTracks([]);
+
+      setSelectedTrackIds((prev) =>
+        prev.filter(
+          (track) =>
+            !recomendedTracks.find((recTrack) => recTrack.id === track.id)
+        )
+      );
+    }
   };
 
   const startPlaying = () => {
     setPlaying(true);
+
+    if (recommend) {
+      getRecommendations();
+    }
   };
 
   const getPlaying = () => {
@@ -50,6 +71,10 @@ const Home = ({ code }: { code: string }) => {
     return selectedTrackIds;
   };
 
+  const getRecommendedTracks = () => {
+    return recomendedTracks;
+  };
+
   const toggleRecommend = () => {
     setRecommend(!recommend);
   };
@@ -63,6 +88,24 @@ const Home = ({ code }: { code: string }) => {
     spotifyApi.setAccessToken(accessToken);
     setAccessTokenIsSet(true);
   }, [accessToken]);
+
+  const getFullTrackObjectFromTrackId = async (trackId: string) => {
+    return await spotifyApi.getTrack(trackId).then(({ body }) => body);
+  };
+
+  const getRecommendations = async () => {
+    const { body } = await spotifyApi.getRecommendations({
+      seed_tracks: selectedTrackIds.map((track) => track.id).toString(),
+      limit: selectedTrackIds.length,
+    });
+
+    const newTracks = await Promise.all(
+      body.tracks.map((track) => getFullTrackObjectFromTrackId(track.id))
+    );
+
+    setSelectedTrackIds((prev) => [...prev, ...newTracks]);
+    setRecomendedTracks(newTracks);
+  };
 
   return (
     <div className="relative flex items-center justify-center text-white w-dvw min-h-dvh">
@@ -89,6 +132,7 @@ const Home = ({ code }: { code: string }) => {
               getPlaying={getPlaying}
               removeSelectedTrack={removeSelectedTrack}
               getSelectedTracks={getSelectedTracks}
+              getRecommendedTracks={getRecommendedTracks}
               clearSelectedTracks={clearSelectedTracks}
               toggleRecommend={toggleRecommend}
               getRecommend={getRecommend}
@@ -96,6 +140,19 @@ const Home = ({ code }: { code: string }) => {
           </div>
         </div>
       )}
+      <ToastContainer
+        stacked
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover={false}
+        theme="dark"
+      />
     </div>
   );
 };

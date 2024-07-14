@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import SpotifyWebApi from "spotify-web-api-node";
 
-import { ChevronLeft } from "lucide-react";
-
 const Player = ({ spotifyApi }: { spotifyApi: SpotifyWebApi }) => {
   const [track, setTrack] = useState<SpotifyApi.TrackObjectFull | undefined>();
 

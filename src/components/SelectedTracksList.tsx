@@ -1,4 +1,5 @@
 import { Trash } from "lucide-react";
+import { toast } from "react-toastify";
 
 const SelectedTracksList = ({
   startPlaying,
@@ -6,6 +7,7 @@ const SelectedTracksList = ({
   getPlaying,
   removeSelectedTrack,
   getSelectedTracks,
+  getRecommendedTracks,
   clearSelectedTracks,
   toggleRecommend,
   getRecommend,
@@ -15,6 +17,7 @@ const SelectedTracksList = ({
   getPlaying: () => boolean;
   removeSelectedTrack: (trackId: string) => void;
   getSelectedTracks: () => SpotifyApi.TrackObjectFull[];
+  getRecommendedTracks: () => SpotifyApi.TrackObjectFull[];
   clearSelectedTracks: () => void;
   toggleRecommend: () => void;
   getRecommend: () => boolean;
@@ -52,7 +55,21 @@ const SelectedTracksList = ({
                   value=""
                   className="sr-only peer"
                   onChange={() => {
-                    toggleRecommend();
+                    if (
+                      getSelectedTracks().length > 0 &&
+                      getSelectedTracks().length >= 5
+                    ) {
+                      toggleRecommend();
+                      if (getRecommend()) {
+                        toast.error("Recommendations disabled");
+                      } else {
+                        toast.success("Recommendations enabled");
+                      }
+                    } else {
+                      toast.error(
+                        "Select at least 5 tracks to get recommendations"
+                      );
+                    }
                   }}
                   checked={getRecommend()}
                 />
@@ -69,9 +86,11 @@ const SelectedTracksList = ({
         )}
         <h2 className="text-2xl font-bold">
           {getPlaying() ? "Queue" : "Selected Tracks"}{" "}
-          <span className="text-sm font-normal text-slate-400">
-            {getSelectedTracks().length} of 50 tracks
-          </span>
+          {getPlaying() === false && (
+            <span className="text-sm font-normal text-slate-400">
+              {getSelectedTracks().length} of 50 tracks
+            </span>
+          )}
         </h2>
       </div>
       <div
@@ -107,6 +126,7 @@ const SelectedTracksList = ({
                         if (track) {
                           if (getSelectedTracks().includes(track)) {
                             removeSelectedTrack(track.id);
+                            toast.error(`${track.name} removed from queue`);
                           }
                         }
                       }}

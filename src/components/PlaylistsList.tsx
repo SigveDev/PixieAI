@@ -3,6 +3,7 @@ import SpotifyWebApi from "spotify-web-api-node";
 import ImageLoading from "./loading/imageLoading";
 import TextLoading from "./loading/textLoading";
 import LoadingWrapper from "./loading/loadingWrapper";
+import { toast } from "react-toastify";
 
 const PlaylistList = ({
   spotifyApi,
@@ -214,6 +215,11 @@ const PlaylistList = ({
                           }
                         }
                       });
+                      if (e.target.checked) {
+                        toast.success("All tracks added to queue");
+                      } else {
+                        toast.error("All tracks removed from queue");
+                      }
                     }}
                     checked={selectedPlaylistTracks.every(
                       (item) =>
@@ -276,9 +282,15 @@ const PlaylistList = ({
                                   ).length > 0
                                 ) {
                                   removeSelectedTrack(item.track.id);
+                                  toast.error(
+                                    `${item.track.name} removed from queue`
+                                  );
                                 } else {
                                   if (getSelectedTracks().length < 50) {
                                     addSelectedTrack(item);
+                                    toast.success(
+                                      `${item.track.name} added to queue`
+                                    );
                                   }
                                 }
                               }
