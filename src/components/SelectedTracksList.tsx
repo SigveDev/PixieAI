@@ -7,7 +7,6 @@ const SelectedTracksList = ({
   getPlaying,
   removeSelectedTrack,
   getSelectedTracks,
-  getRecommendedTracks,
   clearSelectedTracks,
   toggleRecommend,
   getRecommend,
@@ -17,7 +16,6 @@ const SelectedTracksList = ({
   getPlaying: () => boolean;
   removeSelectedTrack: (trackId: string) => void;
   getSelectedTracks: () => SpotifyApi.TrackObjectFull[];
-  getRecommendedTracks: () => SpotifyApi.TrackObjectFull[];
   clearSelectedTracks: () => void;
   toggleRecommend: () => void;
   getRecommend: () => boolean;
