@@ -9,7 +9,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const spotifyApi = new SpotifyWebApi({
-  clientId: "8b945ef10ea24755b83ac50cede405a0",
+  clientId: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
 });
 
 const Home = ({ code }: { code: string }) => {
