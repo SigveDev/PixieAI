@@ -1,6 +1,6 @@
 const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${
   import.meta.env.VITE_SPOTIFY_CLIENT_ID
-}&response_type=code&redirect_uri=https://pixie.sigve.dev&scope=streaming%20user-read-email%20user-read-private%20user-library-read%20user-library-modify%20user-read-playback-state%20user-modify-playback-state%20playlist-read-private`;
+}&response_type=code&redirect_uri=https://pixie.sigve.dev&scope=streaming%20user-read-email%20user-read-private%20user-library-read%20user-read-playback-state%20user-modify-playback-state%20playlist-read-private`;
 
 const Login = () => {
   return (
