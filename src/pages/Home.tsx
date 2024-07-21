@@ -14,7 +14,6 @@ const spotifyApi = new SpotifyWebApi({
 
 const Home = ({ code }: { code: string }) => {
   const accessToken = useAuth(code);
-  const [player, setPlayer] = useState<Spotify.Player | null>(null);
   const [playing, setPlaying] = useState(false);
   const [accesstokenIsSet, setAccessTokenIsSet] = useState(false);
   const [recomendedTracks, setRecomendedTracks] = useState<
@@ -24,8 +23,20 @@ const Home = ({ code }: { code: string }) => {
     SpotifyApi.TrackObjectFull[]
   >([]);
   const [recommend, setRecommend] = useState<boolean>(false);
+  const [universalPlayer, setUniversalPlayer] = useState<Spotify.Player>();
+
+  useEffect(() => {
+    if (accessToken) {
+      spotifyApi.setAccessToken(accessToken);
+      setAccessTokenIsSet(true);
+    }
+  }, [accessToken]);
 
   const stopPlaying = () => {
+    if (universalPlayer) {
+      universalPlayer.disconnect();
+    }
+
     setPlaying(false);
 
     spotifyApi.pause();
@@ -86,67 +97,6 @@ const Home = ({ code }: { code: string }) => {
     return recommend;
   };
 
-  useEffect(() => {
-    if (!accessToken) return;
-    spotifyApi.setAccessToken(accessToken);
-    setAccessTokenIsSet(true);
-
-    const script = document.createElement("script");
-    script.src = "https://sdk.scdn.co/spotify-player.js";
-    script.async = true;
-
-    document.body.appendChild(script);
-
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      const player = new Spotify.Player({
-        name: "PixieAI Player",
-        getOAuthToken: (cb) => {
-          cb(accessToken);
-        },
-        volume: 0.5,
-      });
-
-      player.addListener("initialization_error", ({ message }) => {
-        console.error("initialization_error", message);
-      });
-      player.addListener("authentication_error", ({ message }) => {
-        console.error("authentication_error", message);
-      });
-      player.addListener("account_error", ({ message }) => {
-        console.error("account_error", message);
-      });
-      player.addListener("playback_error", ({ message }) => {
-        console.error("playback_error", message);
-      });
-
-      player.addListener("ready", ({ device_id }) => {
-        console.log("Ready with Device ID", device_id);
-
-        spotifyApi.pause();
-        spotifyApi.transferMyPlayback([device_id]);
-        player.pause();
-      });
-
-      player.addListener("not_ready", ({ device_id }) => {
-        console.log("Device ID has gone offline", device_id);
-      });
-
-      player.addListener("player_state_changed", (state) => {
-        console.log("player_state_changed", state);
-      });
-
-      player.connect().then((success) => {
-        if (success) {
-          console.log(
-            "The Web Playback SDK successfully connected to Spotify!"
-          );
-        }
-      });
-
-      setPlayer(player);
-    };
-  }, [accessToken]);
-
   const getFullTrackObjectFromTrackId = async (trackId: string) => {
     return await spotifyApi.getTrack(trackId).then(({ body }) => body);
   };
@@ -181,12 +131,13 @@ const Home = ({ code }: { code: string }) => {
               />
             ) : (
               <Player
+                accessToken={accessToken}
                 spotifyApi={spotifyApi}
                 getSelectedTracks={getSelectedTracks}
                 getRecommendedTracks={getRecommendedTracks}
                 recommend={getRecommend()}
-                player={player}
                 stopPlaying={stopPlaying}
+                setUniversalPlayer={setUniversalPlayer}
               />
             )}
           </div>

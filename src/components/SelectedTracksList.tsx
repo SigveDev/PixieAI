@@ -114,7 +114,7 @@ const SelectedTracksList = ({
                 </p>
               </div>
               <div className="flex items-center justify-end grow">
-                {track !== null && (
+                {track !== null && getPlaying() === false && (
                   <label className="relative inline-flex items-center ml-2 cursor-pointer w-fit">
                     <input
                       type="checkbox"
