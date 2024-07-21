@@ -118,6 +118,8 @@ const PlaylistList = ({
                 className="w-[640px] h-fit flex flex-col cursor-pointer"
                 onClick={() => {
                   if (playlist.id !== selectedPlaylistId) {
+                    setSelectedPlaylist();
+                    setSelectedPlaylistTracks([]);
                     setSelectedPlaylistId(playlist.id);
                   }
                 }}
