@@ -141,6 +141,7 @@ const Player = ({
       audio.play().finally(() => {
         setLoading(false);
       });
+      spotifyApi.setShuffle(false);
       audio.onended = () => {
         if (!isMounted) return;
         setTalking(false);
@@ -214,6 +215,7 @@ const Player = ({
         audio.play().finally(() => {
           setLoading(false);
         });
+        spotifyApi.setShuffle(false);
         audio.onended = () => {
           if (!isMounted) return;
           setTalking(false);
