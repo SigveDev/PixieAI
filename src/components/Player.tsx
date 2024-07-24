@@ -286,7 +286,7 @@ const Player = ({
       {talking ? (
         <div className="flex flex-col items-center gap-8 h-fit w-fit">
           <img
-            src="/coconut.jpg"
+            src="/icon.svg"
             alt="PixieAI"
             className="w-4/5 rounded-lg aspect-square"
           />
